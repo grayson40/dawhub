@@ -1,0 +1,28 @@
+FROM golang:1.22-alpine
+
+WORKDIR /app
+
+# Install development tools
+RUN go install github.com/cosmtrek/air@v1.44.0 && \
+    go install golang.org/x/tools/gopls@latest && \
+    go install github.com/go-delve/delve/cmd/dlv@latest
+
+# Install build essentials and development tools
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    git \
+    bash
+
+# Copy air config
+COPY .air.toml ./
+
+# Set environment variables
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+    GO111MODULE=on
+
+EXPOSE 8080
+
+CMD ["air", "-c", ".air.toml"]

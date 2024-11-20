@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    env_file: .env
+    volumes:
+      - .:/app
+      - go-mod-cache:/go/pkg/mod  # Persist Go module cache
+      - go-build-cache:/root/.cache/go-build  # Persist Go build cache
+    environment:
+      - CGO_ENABLED=0
+      - GOPATH=/go
+      - GOCACHE=/root/.cache/go-build
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - daw-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - daw-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - daw-network
+
+networks:
+  daw-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
+  go-mod-cache:  # Persist Go modules between container restarts
+  go-build-cache:  # Persist Go build cache between container restarts
