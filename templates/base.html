@@ -1,82 +1,32 @@
 {{define "base"}}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAW Project Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Heroicons for icons -->
-    <script src="https://unpkg.com/@heroicons/v2.0.18/24/outline/index.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css">
     <script>
-        // Function to highlight current path
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname
-            const sidebarLinks = document.querySelectorAll('#sidebar a')
-            
-            sidebarLinks.forEach(link => {
-                if ((currentPath === '/' && link.getAttribute('href') === '/') || 
-                    (currentPath.startsWith(link.getAttribute('href')) && link.getAttribute('href') !== '/')) {
-                    link.classList.add('bg-gray-100', 'text-blue-600', 'font-medium')
-                }
-            })
-        })
+        tailwind.config = {
+            darkMode: 'class'
+        }
     </script>
+    <!-- Run theme initialization as early as possible to prevent flash -->
+    <script src="/static/js/theme-manager.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Prevent flash of wrong theme */
+        html.dark { background: #111827; }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Top Navigation Bar -->
-    <nav class="fixed top-0 z-50 w-full bg-[#24292f] text-white h-16">
-        <div class="px-4 h-full flex items-center justify-between">
-            <!-- Left side -->
-            <div class="flex items-center space-x-4">
-                <button id="sidebar-toggle" class="p-2 hover:bg-gray-700 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-                <a href="/" class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                    </svg>
-                    <span class="font-bold text-lg">DAW Hub</span>
-                </a>
-            </div>
-            
-            <!-- Right side -->
-            <div class="flex items-center space-x-4">
-                <a href="/projects/new" class="bg-white text-black px-3 py-1 rounded-md hover:bg-gray-100">
-                    New Project
-                </a>
-                <div class="w-8 h-8 rounded-full bg-gray-300"></div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed top-16 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0">
-        <div class="h-full px-3 py-4">
-            <ul class="space-y-2">
-                <li>
-                    <a href="/" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                        <span class="ml-3">Home</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/projects" class="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-blue-600 transition-colors duration-150">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                        <span class="ml-3">Projects</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </aside>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    {{template "nav" .}}
+    {{template "sidebar" .}}
 
     <!-- Main content -->
-    <div class="p-4 sm:ml-64 mt-16">
-        <div class="p-4">
+    <main class="lg:pl-64 pt-16">
+        <div class="max-w-7xl mx-auto p-4">
             {{if eq .content "index"}}
                 {{template "index" .}}
             {{else if eq .content "projects"}}
@@ -91,17 +41,7 @@
                 {{template "error" .}}
             {{end}}
         </div>
-    </div>
-
-    <script>
-        // Sidebar toggle functionality
-        const sidebarToggle = document.getElementById('sidebar-toggle')
-        const sidebar = document.getElementById('sidebar')
-        
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full')
-        })
-    </script>
+    </main>
 </body>
 </html>
 {{end}}
