@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -134,28 +135,70 @@ func (h *ProjectHandler) Upload(c *gin.Context) {
 	}
 	defer file.Close()
 
-	// Read file data
-	fileData := make([]byte, header.Size)
-	if _, err := file.Read(fileData); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
+	// Start transaction
+	tx, err := h.repo.Begin()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
 		return
 	}
+	defer tx.Rollback()
 
-	filePath, err := h.storage.UploadFile(project.ID, header.Filename, fileData)
+	// Upload file and get metadata
+	fileInfo, filePath, err := h.storage.UploadFile(project.ID, header.Filename, file)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload file"})
 		return
 	}
 
-	project.FilePath = filePath
-	if err := h.repo.Update(project); err != nil {
+	// Create ProjectFile record
+	projectFile := &domain.ProjectFile{
+		FileMetadata: domain.FileMetadata{
+			Size:        fileInfo.Size,
+			Filename:    fileInfo.Filename,
+			ContentType: fileInfo.ContentType,
+			Hash:        fileInfo.Hash,
+			UploadedAt:  time.Now(),
+		},
+		FilePath: filePath,
+	}
+
+	// Update project with new file
+	if err := tx.AddMainFile(project.ID, projectFile); err != nil {
+		// Cleanup uploaded file on error
+		h.storage.DeleteFile(filePath)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file information"})
+		return
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		h.storage.DeleteFile(filePath)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update project"})
 		return
 	}
 
+	// Return success response
+	if c.GetHeader("HX-Request") == "true" {
+		c.HTML(http.StatusOK, "upload-response", gin.H{
+			"success": true,
+			"file": gin.H{
+				"name": fileInfo.Filename,
+				"size": domain.FormatFileSize(fileInfo.Size),
+				"type": fileInfo.ContentType,
+				"path": filePath,
+			},
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"status": "uploaded",
-		"path":   filePath,
+		"success": true,
+		"file": gin.H{
+			"name": fileInfo.Filename,
+			"size": fileInfo.Size,
+			"type": fileInfo.ContentType,
+			"path": filePath,
+		},
 	})
 }
 
@@ -173,12 +216,12 @@ func (h *ProjectHandler) Download(c *gin.Context) {
 		return
 	}
 
-	if project.FilePath == "" {
+	if project.MainFile.FilePath == "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No file associated with this project"})
 		return
 	}
 
-	obj, fileInfo, err := h.storage.GetFile(project.FilePath)
+	obj, fileInfo, err := h.storage.GetFile(project.MainFile.FilePath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file"})
 		return

@@ -3,9 +3,14 @@ package storage
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"path"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -13,6 +18,7 @@ import (
 
 	"dawhub/internal/config"
 	"dawhub/internal/domain"
+	"dawhub/pkg/common"
 )
 
 const (
@@ -21,22 +27,12 @@ const (
 	downloadTimeout    = 5 * time.Minute
 )
 
-// Common errors
-var (
-	ErrInvalidInput   = fmt.Errorf("invalid input provided")
-	ErrUploadFailed   = fmt.Errorf("failed to upload file")
-	ErrDownloadFailed = fmt.Errorf("failed to download file")
-	ErrBucketNotFound = fmt.Errorf("bucket not found")
-	ErrFileNotFound   = fmt.Errorf("file not found")
-)
-
 type MinioStorage struct {
 	client     *minio.Client
 	bucketName string
 }
 
 func NewMinioStorage(cfg config.MinioConfig) (*MinioStorage, error) {
-	// Initialize MinIO client
 	client, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
 		Secure: cfg.UseSSL,
@@ -50,7 +46,6 @@ func NewMinioStorage(cfg config.MinioConfig) (*MinioStorage, error) {
 		bucketName: cfg.Bucket,
 	}
 
-	// Ensure bucket exists
 	if err := storage.ensureBucket(); err != nil {
 		return nil, err
 	}
@@ -58,55 +53,134 @@ func NewMinioStorage(cfg config.MinioConfig) (*MinioStorage, error) {
 	return storage, nil
 }
 
-// UploadFile uploads a file for a specific project
-func (s *MinioStorage) UploadFile(projectID uint, filename string, data []byte) (string, error) {
-	if projectID == 0 || filename == "" || len(data) == 0 {
-		return "", ErrInvalidInput
+// UploadFile handles file upload and returns file info, path, and error
+func (s *MinioStorage) UploadFile(projectID uint, filename string, reader io.Reader) (domain.FileInfo, string, error) {
+	log.Printf("[DEBUG] Starting file upload - ProjectID: %d, Filename: %s", projectID, filename)
+
+	if projectID == 0 || filename == "" || reader == nil {
+		log.Printf("[ERROR] Invalid input - ProjectID: %d, Filename: %s, Reader nil: %v",
+			projectID, filename, reader == nil)
+		return domain.FileInfo{}, "", common.ErrInvalidInput
 	}
 
-	// Create context with timeout
+	// Read file into buffer for validation and upload
+	var buffer bytes.Buffer
+	tee := io.TeeReader(reader, &buffer)
+
+	// Generate metadata and validate
+	log.Printf("[DEBUG] Validating file %s", filename)
+	metadata, err := s.ValidateFile(tee, filename)
+	if err != nil {
+		log.Printf("[ERROR] File validation failed for %s: %v", filename, err)
+		return domain.FileInfo{}, "", fmt.Errorf("file validation failed: %w", err)
+	}
+	log.Printf("[DEBUG] File validation successful - Size: %d, ContentType: %s",
+		metadata.Size, metadata.ContentType)
+
+	// Generate object name
+	objectName := s.generateObjectName(projectID, filename)
+	log.Printf("[DEBUG] Generated object name: %s", objectName)
+
 	ctx, cancel := context.WithTimeout(context.Background(), uploadTimeout)
 	defer cancel()
 
-	// Generate object name with project path
-	objectName := s.generateObjectName(projectID, filename)
+	log.Printf("[DEBUG] Starting MinIO upload - Bucket: %s, Object: %s, Size: %d",
+		s.bucketName, objectName, metadata.Size)
 
-	// Upload the file
-	reader := bytes.NewReader(data)
-	_, err := s.client.PutObject(
+	// Upload with metadata
+	_, err = s.client.PutObject(
 		ctx,
 		s.bucketName,
 		objectName,
-		reader,
-		int64(len(data)),
+		&buffer,
+		metadata.Size,
 		minio.PutObjectOptions{
-			ContentType: detectContentType(filename),
+			ContentType: metadata.ContentType,
+			UserMetadata: map[string]string{
+				"Filename":   metadata.Filename,
+				"Hash":       metadata.Hash,
+				"UploadedAt": metadata.UploadedAt.Format(time.RFC3339),
+			},
 		},
 	)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrUploadFailed, err)
+		log.Printf("[ERROR] MinIO upload failed: %v", err)
+		return domain.FileInfo{}, "", fmt.Errorf("upload failed: %w", err)
+	}
+	log.Printf("[DEBUG] MinIO upload successful")
+
+	// Create FileInfo from metadata
+	fileInfo := domain.FileInfo{
+		Size:        metadata.Size,
+		Filename:    filename,
+		ContentType: metadata.ContentType,
+		Hash:        metadata.Hash,
+	}
+	log.Printf("[DEBUG] Created FileInfo - Size: %d, Type: %s, Hash: %s",
+		fileInfo.Size, fileInfo.ContentType, fileInfo.Hash)
+
+	log.Printf("[INFO] File upload completed successfully - ProjectID: %d, File: %s, Path: %s",
+		projectID, filename, objectName)
+
+	return fileInfo, objectName, nil
+}
+
+func (s *MinioStorage) ValidateFile(reader io.Reader, filename string) (domain.FileMetadata, error) {
+	log.Printf("[DEBUG] Starting file validation")
+
+	var buffer bytes.Buffer
+	hash := sha256.New()
+
+	// Read file while calculating hash and size
+	log.Printf("[DEBUG] Reading file and calculating hash")
+	size, err := io.Copy(io.MultiWriter(&buffer, hash), reader)
+	if err != nil {
+		log.Printf("[ERROR] Failed to read file: %v", err)
+		return domain.FileMetadata{}, fmt.Errorf("failed to process file: %w", err)
+	}
+	log.Printf("[DEBUG] File size: %d bytes", size)
+
+	// Check file size
+	if size > domain.MaxFileSize {
+		log.Printf("[ERROR] File too large: %d bytes (max: %d)", size, domain.MaxFileSize)
+		return domain.FileMetadata{}, domain.ErrFileTooLarge
 	}
 
-	return objectName, nil
+	// Get file hash
+	fileHash := hex.EncodeToString(hash.Sum(nil))
+	log.Printf("[DEBUG] File hash: %s", fileHash)
+
+	metadata := domain.FileMetadata{
+		Size:        size,
+		ContentType: determineContentType(filename),
+		Hash:        fileHash,
+		UploadedAt:  time.Now(),
+	}
+
+	if !domain.IsAllowedFileType(metadata.ContentType) {
+		log.Printf("[ERROR] Invalid content type: %s", metadata.ContentType)
+		return domain.FileMetadata{}, domain.ErrInvalidFileType
+	}
+
+	log.Printf("[DEBUG] Validation successful - Size: %d, Type: %s", metadata.Size, metadata.ContentType)
+	return metadata, nil
 }
 
 // GetDownloadURL generates a presigned URL for file download
 func (s *MinioStorage) GetDownloadURL(filepath string) (string, error) {
 	if filepath == "" {
-		return "", ErrInvalidInput
+		return "", common.ErrInvalidInput
 	}
 
-	// Create context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 	defer cancel()
 
-	// Check if object exists
-	_, err := s.client.StatObject(ctx, s.bucketName, filepath, minio.StatObjectOptions{})
+	// Verify file exists and get metadata
+	_, err := s.GetFileMetadata(filepath)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrFileNotFound, err)
+		return "", err
 	}
 
-	// Generate presigned URL
 	presignedURL, err := s.client.PresignedGetObject(
 		ctx,
 		s.bucketName,
@@ -121,12 +195,56 @@ func (s *MinioStorage) GetDownloadURL(filepath string) (string, error) {
 	return presignedURL.String(), nil
 }
 
-// DeleteFile removes a file from storage
-func (s *MinioStorage) DeleteFile(filepath string) error {
-	if filepath == "" {
-		return ErrInvalidInput
+// GetFile retrieves a file and its metadata
+func (s *MinioStorage) GetFile(filepath string) (io.ReadCloser, domain.FileInfo, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
+	defer cancel()
+
+	// Get object stats first
+	objInfo, err := s.client.StatObject(ctx, s.bucketName, filepath, minio.StatObjectOptions{})
+	if err != nil {
+		return nil, domain.FileInfo{}, fmt.Errorf("failed to get file info: %w", err)
 	}
 
+	// Get the object
+	obj, err := s.client.GetObject(ctx, s.bucketName, filepath, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, domain.FileInfo{}, fmt.Errorf("failed to get file: %w", err)
+	}
+
+	fileInfo := domain.FileInfo{
+		Size:        objInfo.Size,
+		Filename:    objInfo.UserMetadata["Filename"],
+		ContentType: objInfo.ContentType,
+		Hash:        objInfo.UserMetadata["Hash"],
+	}
+
+	return obj, fileInfo, nil
+}
+
+// GetFileMetadata retrieves file metadata without downloading the file
+func (s *MinioStorage) GetFileMetadata(filepath string) (domain.FileMetadata, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
+	defer cancel()
+
+	objInfo, err := s.client.StatObject(ctx, s.bucketName, filepath, minio.StatObjectOptions{})
+	if err != nil {
+		return domain.FileMetadata{}, fmt.Errorf("failed to get metadata: %w", err)
+	}
+
+	uploadedAt, _ := time.Parse(time.RFC3339, objInfo.UserMetadata["UploadedAt"])
+
+	return domain.FileMetadata{
+		Size:        objInfo.Size,
+		Filename:    objInfo.UserMetadata["Filename"],
+		ContentType: objInfo.ContentType,
+		Hash:        objInfo.UserMetadata["Hash"],
+		UploadedAt:  uploadedAt,
+	}, nil
+}
+
+// DeleteFile removes a single file
+func (s *MinioStorage) DeleteFile(filepath string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 	defer cancel()
 
@@ -138,61 +256,78 @@ func (s *MinioStorage) DeleteFile(filepath string) error {
 	return nil
 }
 
-// ListProjectFiles lists all files for a specific project
-func (s *MinioStorage) ListProjectFiles(projectID uint) ([]string, error) {
-	if projectID == 0 {
-		return nil, ErrInvalidInput
+// DeleteFiles removes multiple files in parallel
+func (s *MinioStorage) DeleteFiles(filepaths []string) error {
+	if len(filepaths) == 0 {
+		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), uploadTimeout)
 	defer cancel()
 
-	prefix := fmt.Sprintf("projects/%d/", projectID)
-	objectCh := s.client.ListObjects(ctx, s.bucketName, minio.ListObjectsOptions{
-		Prefix:    prefix,
-		Recursive: true,
-	})
-
-	var files []string
-	for object := range objectCh {
-		if object.Err != nil {
-			return nil, fmt.Errorf("failed to list files: %w", object.Err)
+	objectsCh := make(chan minio.ObjectInfo)
+	go func() {
+		defer close(objectsCh)
+		for _, filepath := range filepaths {
+			objectsCh <- minio.ObjectInfo{
+				Key: filepath,
+			}
 		}
-		files = append(files, object.Key)
+	}()
+
+	for err := range s.client.RemoveObjects(ctx, s.bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
+		if err.Err != nil {
+			return fmt.Errorf("failed to delete files: %w", err.Err)
+		}
 	}
 
-	return files, nil
+	return nil
 }
 
-func (s *MinioStorage) GetFile(filepath string) (io.ReadCloser, domain.FileInfo, error) {
-	obj, err := s.client.GetObject(
-		context.Background(),
-		s.bucketName,
-		filepath,
-		minio.GetObjectOptions{},
-	)
-	if err != nil {
-		return nil, domain.FileInfo{}, fmt.Errorf("failed to get file: %w", err)
+// ValidateFiles validates multiple files in parallel
+func (s *MinioStorage) ValidateFiles(files map[string]io.Reader) (map[string]domain.FileMetadata, error) {
+	if len(files) == 0 {
+		return nil, nil
 	}
 
-	// Get stats before returning the object
-	stat, err := obj.Stat()
-	if err != nil {
-		obj.Close()
-		return nil, domain.FileInfo{}, fmt.Errorf("failed to get file info: %w", err)
+	results := make(map[string]domain.FileMetadata)
+	errors := make([]error, 0)
+	var mutex sync.Mutex
+	var wg sync.WaitGroup
+
+	for filename, reader := range files {
+		wg.Add(1)
+		go func(fname string, r io.Reader) {
+			defer wg.Done()
+
+			metadata, err := s.ValidateFile(r, filename)
+			mutex.Lock()
+			defer mutex.Unlock()
+
+			if err != nil {
+				errors = append(errors, fmt.Errorf("failed to validate %s: %w", fname, err))
+				return
+			}
+
+			metadata.Filename = fname
+			results[fname] = metadata
+		}(filename, reader)
 	}
 
-	fileInfo := domain.FileInfo{
-		Size:     stat.Size,
-		Filename: path.Base(filepath),
+	wg.Wait()
+
+	if len(errors) > 0 {
+		return nil, fmt.Errorf("validation errors: %v", errors)
 	}
 
-	return obj, fileInfo, nil
+	return results, nil
 }
 
-// Helper functions
+// Helper functions remain the same
+func (s *MinioStorage) generateObjectName(projectID uint, filename string) string {
+	return fmt.Sprintf("projects/%d/%s", projectID, sanitizeFilename(filename))
+}
 
-// ensureBucket ensures the bucket exists, creates it if it doesn't
 func (s *MinioStorage) ensureBucket() error {
 	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 	defer cancel()
@@ -212,84 +347,30 @@ func (s *MinioStorage) ensureBucket() error {
 	return nil
 }
 
-// generateObjectName creates a consistent object name structure
-func (s *MinioStorage) generateObjectName(projectID uint, filename string) string {
-	return fmt.Sprintf("projects/%d/%s", projectID, sanitizeFilename(filename))
-}
-
-// sanitizeFilename cleans the filename for storage
 func sanitizeFilename(filename string) string {
-	// Clean the path to remove any directory traversal attempts
-	filename = path.Base(path.Clean(filename))
-	return filename
+	return path.Base(path.Clean(filename))
 }
 
-// detectContentType returns the content type based on file extension
-func detectContentType(filename string) string {
-	ext := path.Ext(filename)
+func determineContentType(filename string) string {
+	ext := strings.ToLower(path.Ext(filename))
 	switch ext {
-	case ".mp3", ".wav", ".flac":
-		return "audio/" + ext[1:]
-	case ".pdf":
-		return "application/pdf"
+	case ".flp":
+		return "audio/x-flp"
+	case ".wav":
+		return "audio/wav"
+	case ".mp3":
+		return "audio/mpeg"
+	case ".aiff":
+		return "audio/aiff"
+	case ".aif":
+		return "audio/aiff"
+	case ".m4a":
+		return "audio/mp4"
+	case ".ogg":
+		return "audio/ogg"
 	case ".zip":
 		return "application/zip"
 	default:
 		return "application/octet-stream"
 	}
-}
-
-// Additional helper methods for monitoring and maintenance
-
-// GetBucketSize returns the total size of all objects in the bucket
-func (s *MinioStorage) GetBucketSize() (int64, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
-	defer cancel()
-
-	var totalSize int64
-	objectCh := s.client.ListObjects(ctx, s.bucketName, minio.ListObjectsOptions{
-		Recursive: true,
-	})
-
-	for object := range objectCh {
-		if object.Err != nil {
-			return 0, fmt.Errorf("failed to calculate bucket size: %w", object.Err)
-		}
-		totalSize += object.Size
-	}
-
-	return totalSize, nil
-}
-
-// CleanupOldFiles removes files older than the specified duration
-func (s *MinioStorage) CleanupOldFiles(age time.Duration) error {
-	ctx, cancel := context.WithTimeout(context.Background(), uploadTimeout)
-	defer cancel()
-
-	cutoff := time.Now().Add(-age)
-	objectCh := s.client.ListObjects(ctx, s.bucketName, minio.ListObjectsOptions{
-		Recursive: true,
-	})
-
-	for object := range objectCh {
-		if object.Err != nil {
-			return fmt.Errorf("failed during cleanup: %w", object.Err)
-		}
-
-		if object.LastModified.Before(cutoff) {
-			err := s.DeleteFile(object.Key)
-			if err != nil {
-				return fmt.Errorf("failed to delete old file %s: %w", object.Key, err)
-			}
-		}
-	}
-
-	return nil
-}
-
-// BackupBucket creates a backup of the entire bucket
-func (s *MinioStorage) BackupBucket(targetBucket string) error {
-	// Implementation would go here
-	// This is just a placeholder for the interface
-	return fmt.Errorf("backup functionality not implemented")
 }

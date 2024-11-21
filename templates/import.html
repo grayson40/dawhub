@@ -1,0 +1,137 @@
+{{define "import"}}
+<div class="px-6 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Import Project</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Upload a zip file containing your DAW project and samples</p>
+        </div>
+
+        <!-- Upload Form -->
+        <form hx-encoding="multipart/form-data"
+              hx-post="/projects/import"
+              hx-target="#importResult"
+              hx-indicator="#uploadProgress"
+              class="space-y-8">
+            
+            <!-- File Upload -->
+            <div class="space-y-4">
+                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" 
+                                  stroke-width="2" 
+                                  stroke-linecap="round" 
+                                  stroke-linejoin="round" />
+                        </svg>
+                        <div class="mt-4">
+                            <input type="file"
+                                   id="projectZip"
+                                   name="projectZip"
+                                   accept=".zip"
+                                   required
+                                   class="sr-only"
+                                   onchange="updateFileInfo(this)">
+                            <label for="projectZip"
+                                   class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                Choose Project ZIP
+                            </label>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400" id="fileInfo">
+                            No file selected
+                        </p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            ZIP file should contain your DAW project file and all associated samples
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Settings -->
+            <div class="space-y-4">
+                <label class="flex items-center space-x-3">
+                    <input type="radio" 
+                           name="visibility" 
+                           value="public" 
+                           checked
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <div>
+                        <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Public</span>
+                        <span class="block text-sm text-gray-500 dark:text-gray-400">Anyone can view and download this project</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center space-x-3">
+                    <input type="radio" 
+                           name="visibility" 
+                           value="private" 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <div>
+                        <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Private</span>
+                        <span class="block text-sm text-gray-500 dark:text-gray-400">Only you can access this project</span>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Upload Progress -->
+            <div id="uploadProgress" class="htmx-indicator">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-4">
+                    <div class="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full w-0 transition-all duration-300"
+                         id="progressBar"></div>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 text-center" id="progressText">
+                    Preparing upload...
+                </p>
+            </div>
+
+            <!-- Import Result -->
+            <div id="importResult"></div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-4">
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Import Project
+                </button>
+                
+                <button type="button"
+                        hx-get="/projects"
+                        hx-target="#content"
+                        hx-push-url="true"
+                        class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function updateFileInfo(input) {
+    const fileInfo = document.getElementById('fileInfo');
+    if (input.files.length > 0) {
+        const file = input.files[0];
+        const size = (file.size / (1024 * 1024)).toFixed(2);
+        fileInfo.textContent = `${file.name} (${size} MB)`;
+    } else {
+        fileInfo.textContent = 'No file selected';
+    }
+}
+
+// Add progress handling
+htmx.on('htmx:xhr:progress', function(evt) {
+    if (evt.loaded && evt.total) {
+        const percent = (evt.loaded / evt.total) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressText').textContent = 
+            `Uploading... ${Math.round(percent)}%`;
+    }
+});
+
+htmx.on('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful) {
+        document.getElementById('progressText').textContent = 'Upload complete!';
+    }
+});
+</script>
+{{end}}

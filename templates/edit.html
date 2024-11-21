@@ -1,43 +1,125 @@
 {{define "edit"}}
-<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md dark:shadow-gray-900">
-    <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Edit Project</h1>
-    <form action="/projects/{{.project.ID}}/update" method="POST">
-        <div class="mb-4">
-            <label class="block text-gray-700 dark:text-gray-200 mb-2" for="name">Project Name</label>
-            <input 
-                type="text" 
-                id="name" 
-                name="name" 
-                value="{{.project.Name}}" 
-                required
-                class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors"
-            >
+<div class="px-6 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Project</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">Update your project details and settings</p>
         </div>
-        <div class="mb-4">
-            <label class="block text-gray-700 dark:text-gray-200 mb-2" for="version">Version</label>
-            <input 
-                type="text" 
-                id="version" 
-                name="version" 
-                value="{{.project.Version}}" 
-                required
-                class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors"
-            >
-        </div>
-        <div class="space-y-4">
-            <button 
-                type="submit" 
-                class="w-full py-2 px-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
-            >
-                Update Project
-            </button>
-            <a 
-                href="/projects" 
-                class="block w-full text-center py-2 px-4 bg-gray-600 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
-            >
-                Back to Projects
-            </a>
-        </div>
-    </form>
+
+        <form hx-post="/projects/{{.project.ID}}/update"
+              hx-target="#content"
+              hx-push-url="true"
+              class="space-y-8">
+            
+            <!-- Basic Info Section -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Basic Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="name">
+                            Project Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               value="{{.project.Name}}" 
+                               required
+                               class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="version">
+                            Version <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="version" 
+                               name="version" 
+                               value="{{.project.Version}}" 
+                               required
+                               class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="description">
+                        Description
+                    </label>
+                    <textarea id="description" 
+                              name="description" 
+                              rows="3"
+                              class="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{.project.Description}}</textarea>
+                </div>
+            </div>
+
+            <!-- Project Settings -->
+            <div class="space-y-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Project Settings</h2>
+                
+                <div class="space-y-4">
+                    <label class="flex items-center space-x-3">
+                        <input type="radio" 
+                               name="visibility" 
+                               value="public" 
+                               {{if .project.IsPublic}}checked{{end}}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                        <div>
+                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Public</span>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Anyone can view and download this project</span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center space-x-3">
+                        <input type="radio" 
+                               name="visibility" 
+                               value="private" 
+                               {{if not .project.IsPublic}}checked{{end}}
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                        <div>
+                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Private</span>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Only you can access this project</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- File Information -->
+            {{if .project.MainFile}}
+            <div class="space-y-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Current Files</h2>
+                
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-6 h-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{.project.MainFile.Filename}}</p>
+                                <p class="text-xs text-gray-500">{{.project.MainFile.ContentType}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="button"
+                        hx-get="/projects/{{.project.ID}}"
+                        hx-target="#content"
+                        hx-push-url="true"
+                        class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 {{end}}

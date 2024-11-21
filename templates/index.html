@@ -4,7 +4,9 @@
     <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg p-6 text-white">
         <h1 class="text-3xl font-bold mb-2">Welcome to DAW Hub</h1>
         <p class="mb-4">Discover, share, and collaborate on music projects</p>
-        <a href="/projects/new" class="inline-block bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <a hx-get="/projects/new"
+        hx-target="#content"
+        hx-push-url="true" class="inline-block bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
             Create New Project
         </a>
     </div>

@@ -1,0 +1,77 @@
+{{define "import-success"}}
+<div class="px-6 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Success Message -->
+        <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-6 mb-8">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-green-800 dark:text-green-200">
+                        Project Imported Successfully
+                    </h3>
+                    <div class="mt-2 text-sm text-green-700 dark:text-green-300">
+                        <p>Your project has been imported with {{.sampleCount}} sample files.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Summary -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 mb-8">
+            <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Project Details</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div class="flex justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Project Name</dt>
+                    <dd class="text-sm text-gray-900 dark:text-white">{{.project.Name}}</dd>
+                </div>
+                <div class="flex justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Version</dt>
+                    <dd class="text-sm text-gray-900 dark:text-white">{{.project.Version}}</dd>
+                </div>
+                <div class="flex justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Visibility</dt>
+                    <dd class="text-sm text-gray-900 dark:text-white">
+                        {{if .project.IsPublic}}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                Public
+                            </span>
+                        {{else}}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                                Private
+                            </span>
+                        {{end}}
+                    </dd>
+                </div>
+                <div class="flex justify-between py-3">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Sample Files</dt>
+                    <dd class="text-sm text-gray-900 dark:text-white">{{.sampleCount}} files included</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-4">
+            <a href="/projects/{{.project.ID}}"
+               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                View Project
+            </a>
+            <button hx-get="/projects"
+                    hx-target="#content"
+                    hx-push-url="true"
+                    class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                Back to Projects
+            </button>
+            <button hx-get="/projects/import"
+                    hx-target="#content"
+                    hx-push-url="true"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                Import Another Project
+            </button>
+        </div>
+    </div>
+</div>
+{{end}}

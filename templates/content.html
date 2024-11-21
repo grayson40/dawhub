@@ -1,0 +1,17 @@
+{{define "content"}}
+    {{if eq .content "index"}}
+        {{template "index" .}}
+    {{else if eq .content "projects"}}
+        {{template "projects" .}}
+    {{else if eq .content "new"}}
+        {{template "new" .}}
+    {{else if eq .content "show"}}
+        {{template "show" .}}
+    {{else if eq .content "edit"}}
+        {{template "edit" .}}
+    {{else if eq .content "error"}}
+        {{template "error" .}}
+    {{else if eq .content "import"}}
+        {{template "import" .}}
+    {{end}}
+{{end}}

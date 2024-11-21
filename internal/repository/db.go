@@ -44,7 +44,7 @@ func NewDB(cfg config.DBConfig) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// Auto-migrate schemas
-	if err := db.AutoMigrate(&domain.Project{}); err != nil {
+	if err := db.AutoMigrate(&domain.Project{}, &domain.SampleFile{}); err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 

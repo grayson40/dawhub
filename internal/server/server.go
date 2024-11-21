@@ -75,6 +75,8 @@ func (s *Server) setupRoutes() {
 	s.router.GET("/projects/:id/edit", s.projectWeb.Edit)
 	s.router.POST("/projects/:id/update", s.projectWeb.Update)
 	s.router.POST("/projects/:id/delete", s.projectWeb.Delete)
+	s.router.GET("/projects/import", s.projectWeb.Import)
+	s.router.POST("/projects/import", s.projectWeb.HandleImport)
 
 	// API routes
 	api := s.router.Group("/api/v1")

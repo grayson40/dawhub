@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAW Project Manager</title>
+    <!-- Add HTMX before other scripts -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css">
     <script>
@@ -12,11 +14,9 @@
             darkMode: 'class'
         }
     </script>
-    <!-- Run theme initialization as early as possible to prevent flash -->
     <script src="/static/js/theme-manager.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Prevent flash of wrong theme */
         html.dark { background: #111827; }
     </style>
 </head>
@@ -26,7 +26,7 @@
 
     <!-- Main content -->
     <main class="lg:pl-64 pt-16">
-        <div class="max-w-7xl mx-auto p-4">
+        <div id="content" class="mx-auto p-8">
             {{if eq .content "index"}}
                 {{template "index" .}}
             {{else if eq .content "projects"}}
@@ -39,6 +39,8 @@
                 {{template "edit" .}}
             {{else if eq .content "error"}}
                 {{template "error" .}}
+            {{else if eq .content "import"}}
+                {{template "import" .}}
             {{end}}
         </div>
     </main>

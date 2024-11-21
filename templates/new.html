@@ -1,56 +1,134 @@
 {{define "new"}}
-<div class="max-w-md mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md dark:shadow-gray-900 transition-colors">
-    <div class="flex items-center mb-6">
-        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">New Project</h1>
-    </div>
-    
-    <form action="/projects/create" method="POST" class="space-y-4">
-        <div>
-            <label class="block text-gray-700 dark:text-gray-200 mb-2" for="name">Project Name</label>
-            <input 
-                type="text" 
-                id="name" 
-                name="name" 
-                required
-                placeholder="Enter project name"
-                class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg 
-                       focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 
-                       placeholder-gray-400 dark:placeholder-gray-500
-                       transition-colors"
-            >
-        </div>
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <div id="form-error"></div>
+
+    <h1 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">Create a new project</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-8">
+        A project contains all files, including the upload history. Already have a project? 
+        <a hx-get="/projects/import" 
+           hx-target="#content"
+           hx-push-url="true" 
+           class="text-blue-600 dark:text-blue-400 hover:underline">
+            Import a project
+        </a>
+    </p>
+
+    <form hx-post="/projects/create"
+          hx-encoding="multipart/form-data"
+          hx-target="#content"
+          hx-push-url="true"
+          hx-indicator="#formProgress">
         
-        <div>
-            <label class="block text-gray-700 dark:text-gray-200 mb-2" for="version">Version</label>
-            <input 
-                type="text" 
-                id="version" 
-                name="version" 
-                required
-                placeholder="e.g., 1.0.0"
-                class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg 
-                       focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 
-                       placeholder-gray-400 dark:placeholder-gray-500
-                       transition-colors"
-            >
+        <!-- Required fields note -->
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Required fields are marked with an asterisk (*).</p>
+
+        <!-- Project Details -->
+        <div class="space-y-6 mb-8">
+            <!-- Name -->
+            <div>
+                <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Project name <span class="text-red-500 ml-1">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    class="w-full max-w-lg px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                    placeholder="Enter project name"
+                >
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    Description <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(optional)</span>
+                </label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="3"
+                    class="w-full max-w-2xl px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                    placeholder="A brief description of your project"
+                ></textarea>
+            </div>
+
+            <!-- Files Section -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Project Files</h2>
+                
+                <!-- Main File -->
+                <div class="mb-4">
+                    <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        Main project file <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <div class="max-w-2xl">
+                        <input type="file" 
+                               id="mainFile" 
+                               name="mainFile" 
+                               required
+                               class="w-full px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent">
+                    </div>
+                </div>
+
+                <!-- Sample Files -->
+                <div>
+                    <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        Sample files <span class="text-gray-500 dark:text-gray-400 text-sm font-normal ml-2">(optional)</span>
+                    </label>
+                    <div class="max-w-2xl">
+                        <input type="file" 
+                               id="samples" 
+                               name="samples" 
+                               multiple
+                               class="w-full px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visibility Section -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Visibility</h2>
+                
+                <div class="space-y-4">
+                    <label class="flex items-start space-x-3 cursor-pointer">
+                        <input type="radio" name="visibility" value="public" checked class="mt-1">
+                        <div class="flex-1">
+                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Public</span>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">Anyone on the internet can see this project.</span>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-start space-x-3 cursor-pointer">
+                        <input type="radio" name="visibility" value="private" class="mt-1">
+                        <div class="flex-1">
+                            <span class="block text-sm font-medium text-gray-900 dark:text-gray-100">Private</span>
+                            <span class="block text-sm text-gray-500 dark:text-gray-400">You choose who can see and access this project.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
         </div>
-        
-        <div class="pt-2">
+
+        <!-- Submit Button -->
+        <div class="mt-6">
             <button 
                 type="submit" 
-                class="w-full py-2 px-4 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 
-                       text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 
-                       focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors
-                       flex items-center justify-center"
+                class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Create Project
+                Create project
             </button>
+        </div>
+
+        <!-- Progress indicator -->
+        <div id="formProgress" class="htmx-indicator mt-4">
+            <div class="flex items-center space-x-2">
+                <svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm text-gray-600 dark:text-gray-400">Creating project...</span>
+            </div>
         </div>
     </form>
 </div>
