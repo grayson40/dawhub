@@ -13,5 +13,7 @@
         {{template "error" .}}
     {{else if eq .content "import"}}
         {{template "import" .}}
+    {{else if eq .content "settings"}}
+        {{template "settings" .}}
     {{end}}
 {{end}}

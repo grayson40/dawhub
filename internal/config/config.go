@@ -13,7 +13,8 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port string
+	Port          string
+	SessionSecret string
 }
 
 type DBConfig struct {
@@ -39,7 +40,8 @@ func Load() (*Config, error) {
 
 	return &Config{
 		Server: ServerConfig{
-			Port: getEnv("APP_PORT", "8080"),
+			Port:          getEnv("APP_PORT", "8080"),
+			SessionSecret: getEnv("SESSION_SECRET", "default-secret-key"),
 		},
 		DB: DBConfig{
 			Host:     getEnv("DB_HOST", "db"),

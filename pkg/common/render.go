@@ -3,6 +3,7 @@ package common
 import (
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +17,15 @@ func IsHtmx(c *gin.Context) bool {
 
 // Render handles template rendering for both HTMX and regular requests
 func Render(c *gin.Context, data gin.H) {
+	session := sessions.Default(c)
+	if userID := session.Get("user_id"); userID != nil {
+		data["user"] = gin.H{
+			"ID":       userID,
+			"Username": session.Get("username"),
+			"Email":    session.Get("email"),
+		}
+	}
+
 	if IsHtmx(c) {
 		c.HTML(http.StatusOK, "content", data)
 	} else {

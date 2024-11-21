@@ -1,0 +1,29 @@
+{{define "auth_layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAW Hub - Authentication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="/static/js/theme-manager.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        html.dark { background: #111827; }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    {{if eq .content "login"}}
+        {{template "login" .}}
+    {{else if eq .content "register"}}
+        {{template "register" .}}
+    {{end}}
+</body>
+</html>
+{{end}}

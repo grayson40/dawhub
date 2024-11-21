@@ -1,0 +1,134 @@
+{{define "settings"}}
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <h1 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">Account Settings</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-8">
+        Manage your profile, security, and preferences.
+    </p>
+
+    <!-- Profile Section -->
+    <div class="space-y-8 mb-8">
+        <div>
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Profile Information</h2>
+            <form hx-post="/settings/profile"
+                  hx-target="#form-error"
+                  class="space-y-6">
+                <div>
+                    <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        Username <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <input type="text" 
+                           name="username" 
+                           value="{{.user.Username}}"
+                           required
+                           class="w-full max-w-lg px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white">
+                </div>
+                
+                <div>
+                    <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        Email <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <input type="email" 
+                           name="email" 
+                           value="{{.user.Email}}"
+                           required
+                           class="w-full max-w-lg px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white">
+                </div>
+
+                <div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Password Section -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Change Password</h2>
+            <form hx-post="/settings/password"
+                  hx-target="#form-error"
+                  class="space-y-6">
+                <div>
+                    <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        Current Password <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <input type="password" 
+                           name="current_password"
+                           required
+                           class="w-full max-w-lg px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                        New Password <span class="text-red-500 ml-1">*</span>
+                    </label>
+                    <input type="password" 
+                           name="new_password"
+                           required
+                           class="w-full max-w-lg px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white">
+                </div>
+
+                <div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Preferences</h2>
+            <form hx-post="/settings/preferences"
+                  hx-target="#form-error"
+                  class="space-y-6">
+                <div class="space-y-4">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" 
+                               name="email_notifications" 
+                               class="rounded dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                        <span class="text-sm text-gray-900 dark:text-gray-100">Email notifications for project updates</span>
+                    </label>
+
+                    <div>
+                        <label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                            Default Project Privacy
+                        </label>
+                        <select name="default_privacy"
+                                class="w-full max-w-lg px-3 py-2 bg-transparent border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white">
+                            <option value="public">Public</option>
+                            <option value="private">Private</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Save Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h2 class="text-lg font-medium text-red-600 dark:text-red-400 mb-4">Danger Zone</h2>
+            <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-lg p-4">
+                <p class="text-sm text-red-600 dark:text-red-400 mb-4">
+                    Once you delete your account, there is no going back. Please be certain.
+                </p>
+                <button onclick="if(confirm('Are you sure you want to delete your account? This action cannot be undone.')) document.getElementById('delete-account').submit()"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    Delete Account
+                </button>
+                <form id="delete-account" hx-post="/settings/delete-account" class="hidden"></form>
+            </div>
+        </div>
+    </div>
+
+    <div id="form-error"></div>
+</div>
+{{end}}
