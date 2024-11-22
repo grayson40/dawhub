@@ -83,6 +83,7 @@ func (s *Server) setupRoutes() {
 	s.router.GET("/register", s.authWeb.RegisterPage)
 	s.router.POST("/register", s.authWeb.Register)
 	s.router.POST("/logout", s.authWeb.Logout)
+	s.router.GET("/health", s.authWeb.Health)
 
 	// Protected web routes
 	web := s.router.Group("/")
