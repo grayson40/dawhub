@@ -71,8 +71,8 @@ main() {
 
     # Pull latest changes
     log "Pulling latest changes..."
-    git fetch origin main
-    git reset --hard origin/main
+    git fetch origin master
+    git reset --hard origin/master
     
     # Create backup
     create_backup
