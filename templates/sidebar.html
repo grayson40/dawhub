@@ -34,6 +34,7 @@
     const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
+    const sidebarLinks = sidebar.querySelectorAll('a');
 
     function toggleSidebar() {
         sidebar.classList.toggle('-translate-x-full');
@@ -42,5 +43,13 @@
 
     sidebarToggle?.addEventListener('click', toggleSidebar);
     overlay?.addEventListener('click', toggleSidebar);
+
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+        });
+    });
 </script>
 {{end}}
