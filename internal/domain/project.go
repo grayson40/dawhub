@@ -34,6 +34,7 @@ type Project struct {
 	IsPublic    bool      `json:"is_public"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+	UserID      uint      `json:"user_id"`
 
 	// Main project file ID
 	MainFileID *uint `json:"main_file_id"`
@@ -41,6 +42,7 @@ type Project struct {
 	// Relationships
 	MainFile    *ProjectFile `gorm:"foreignKey:MainFileID" json:"main_file"`
 	SampleFiles []SampleFile `gorm:"foreignKey:ProjectID" json:"sample_files"`
+	User        User         `gorm:"foreignKey:UserID" json:"-"`
 
 	// Calculated total size (updated on file changes)
 	TotalSize int64 `gorm:"not null;default:0" json:"total_size"` // Total size in bytes
@@ -65,7 +67,9 @@ type SampleFile struct {
 type ProjectRepository interface {
 	DB() *gorm.DB
 	Create(project *Project) error
+	FindByUserID(id uint) ([]Project, error)
 	FindAll(filters ...func(*gorm.DB) *gorm.DB) ([]Project, error)
+	FindAllPublic() ([]Project, error)
 	FindByID(id uint) (*Project, error)
 	Update(project *Project) error
 	Delete(id uint) error

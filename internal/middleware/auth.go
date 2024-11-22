@@ -53,3 +53,34 @@ func WebAuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func DualAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Try JWT first
+		authHeader := c.GetHeader("Authorization")
+		if authHeader != "" {
+			tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				return []byte(os.Getenv("JWT_SECRET")), nil
+			})
+			if err == nil && token.Valid {
+				claims := token.Claims.(jwt.MapClaims)
+				c.Set("user_id", claims["user_id"])
+				c.Next()
+				return
+			}
+		}
+
+		// Fall back to session
+		session := sessions.Default(c)
+		userID := session.Get("user_id")
+		if userID != nil {
+			c.Set("user_id", userID)
+			c.Next()
+			return
+		}
+
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		c.Abort()
+	}
+}

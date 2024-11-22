@@ -33,6 +33,12 @@ func (r *ProjectRepository) Create(project *domain.Project) error {
 	return nil
 }
 
+func (r *ProjectRepository) FindByUserID(userID uint) ([]domain.Project, error) {
+	var projects []domain.Project
+	err := r.db.Where("user_id = ?", userID).Find(&projects).Error
+	return projects, err
+}
+
 // FindAll retrieves all projects with optional filtering
 func (r *ProjectRepository) FindAll(filters ...func(*gorm.DB) *gorm.DB) ([]domain.Project, error) {
 	var projects []domain.Project
@@ -48,6 +54,15 @@ func (r *ProjectRepository) FindAll(filters ...func(*gorm.DB) *gorm.DB) ([]domai
 		return nil, fmt.Errorf("failed to fetch projects: %v", result.Error)
 	}
 
+	return projects, nil
+}
+
+func (r *ProjectRepository) FindAllPublic() ([]domain.Project, error) {
+	var projects []domain.Project
+	result := r.db.Where("is_public = ?", true).Order("created_at DESC").Find(&projects)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to fetch projects: %v", result.Error)
+	}
 	return projects, nil
 }
 

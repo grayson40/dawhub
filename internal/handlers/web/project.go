@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 
 	"dawhub/internal/domain"
@@ -66,28 +67,26 @@ func (h *ProjectHandler) Home(c *gin.Context) {
 func (h *ProjectHandler) getHomeData() (HomeData, error) {
 	var data HomeData
 
-	// Get all projects for stats
-	projects, err := h.repo.FindAll()
+	// Get public projects only
+	projects, err := h.repo.FindAllPublic()
 	if err != nil {
-		return data, err
+		return data, fmt.Errorf("failed to fetch projects: %v", err)
 	}
 
-	// Calculate stats
 	data.Stats = Stats{
 		ProjectCount: len(projects),
-		// TODO: Implement sample and user counts when those features are added
 	}
 
-	// Get trending projects (newest for now)
+	// Get last 6 trending projects
 	if len(projects) > 6 {
-		data.TrendingProjects = projects[len(projects)-6:]
+		data.TrendingProjects = projects[:6]
 	} else {
 		data.TrendingProjects = projects
 	}
 
-	// Get recent projects
+	// Get last 4 recent projects
 	if len(projects) > 4 {
-		data.RecentProjects = projects[len(projects)-4:]
+		data.RecentProjects = projects[:4]
 	} else {
 		data.RecentProjects = projects
 	}
@@ -97,7 +96,16 @@ func (h *ProjectHandler) getHomeData() (HomeData, error) {
 
 // List handles GET / to display all projects
 func (h *ProjectHandler) List(c *gin.Context) {
-	projects, err := h.repo.FindAll()
+	// Get logged in user ID
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+	if userID == nil {
+		common.RenderError(c, "User must be logged in")
+		return
+	}
+
+	// Fetch only user's projects
+	projects, err := h.repo.FindByUserID(userID.(uint))
 	if err != nil {
 		common.RenderError(c, "Failed to fetch projects")
 		return
@@ -118,6 +126,14 @@ func (h *ProjectHandler) New(c *gin.Context) {
 
 // Create handles POST /projects/create to create a new project with files
 func (h *ProjectHandler) Create(c *gin.Context) {
+	// Get logged in user ID
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+	if userID == nil {
+		common.RenderError(c, "User must be logged in")
+		return
+	}
+
 	// Parse form data
 	form, err := c.MultipartForm()
 	if err != nil {
@@ -138,6 +154,7 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 		Name:        c.PostForm("name"),
 		Description: c.PostForm("description"),
 		IsPublic:    c.PostForm("visibility") == "public",
+		UserID:      userID.(uint),
 		Version:     "1.0",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
