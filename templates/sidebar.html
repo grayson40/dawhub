@@ -27,4 +27,20 @@
         </ul>
     </div>
 </aside>
+
+<div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-30 lg:hidden"></div>
+
+<script>
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+
+    sidebarToggle?.addEventListener('click', toggleSidebar);
+    overlay?.addEventListener('click', toggleSidebar);
+</script>
 {{end}}
