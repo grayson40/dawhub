@@ -197,18 +197,19 @@ func (s *MinioStorage) GetDownloadURL(filepath string) (string, error) {
 
 // GetFile retrieves a file and its metadata
 func (s *MinioStorage) GetFile(filepath string) (io.ReadCloser, domain.FileInfo, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
-	defer cancel()
+	ctx := context.Background()
 
-	// Get object stats first
+	log.Printf("Getting file stats for: %s", filepath)
 	objInfo, err := s.client.StatObject(ctx, s.bucketName, filepath, minio.StatObjectOptions{})
 	if err != nil {
+		log.Printf("Failed to get file stats: %v", err)
 		return nil, domain.FileInfo{}, fmt.Errorf("failed to get file info: %w", err)
 	}
 
-	// Get the object
+	log.Printf("Getting file object for: %s", filepath)
 	obj, err := s.client.GetObject(ctx, s.bucketName, filepath, minio.GetObjectOptions{})
 	if err != nil {
+		log.Printf("Failed to get file object: %v", err)
 		return nil, domain.FileInfo{}, fmt.Errorf("failed to get file: %w", err)
 	}
 
@@ -218,6 +219,7 @@ func (s *MinioStorage) GetFile(filepath string) (io.ReadCloser, domain.FileInfo,
 		ContentType: objInfo.ContentType,
 		Hash:        objInfo.UserMetadata["Hash"],
 	}
+	log.Printf("File info: %+v", fileInfo)
 
 	return obj, fileInfo, nil
 }

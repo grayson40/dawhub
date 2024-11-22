@@ -150,8 +150,9 @@ func (h *ProjectHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	// Create ProjectFile record
-	projectFile := &domain.ProjectFile{
+	// Create SampleFile record
+	sampleFile := &domain.SampleFile{
+		ProjectID: project.ID,
 		FileMetadata: domain.FileMetadata{
 			Size:        fileInfo.Size,
 			Filename:    fileInfo.Filename,
@@ -162,8 +163,8 @@ func (h *ProjectHandler) Upload(c *gin.Context) {
 		FilePath: filePath,
 	}
 
-	// Update project with new file
-	if err := tx.AddMainFile(project.ID, projectFile); err != nil {
+	// Add sample file to project
+	if err := tx.AddSampleFile(project.ID, sampleFile); err != nil {
 		// Cleanup uploaded file on error
 		h.storage.DeleteFile(filePath)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file information"})
@@ -177,7 +178,7 @@ func (h *ProjectHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	// Return success response
+	// Return success response with HTMX
 	if c.GetHeader("HX-Request") == "true" {
 		c.HTML(http.StatusOK, "upload-response", gin.H{
 			"success": true,
@@ -216,12 +217,52 @@ func (h *ProjectHandler) Download(c *gin.Context) {
 		return
 	}
 
-	if project.MainFile.FilePath == "" {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No file associated with this project"})
+	fileType := c.Query("type")
+	fileId := c.Query("fileId")
+
+	var filePath string
+	var fileName string
+
+	switch fileType {
+	case "main":
+		if project.MainFile == nil || project.MainFile.FilePath == "" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "No main file associated with this project"})
+			return
+		}
+		filePath = project.MainFile.FilePath
+		fileName = project.MainFile.Filename
+	case "sample":
+		if fileId == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "File ID is required for sample files"})
+			return
+		}
+
+		sampleFileId, err := strconv.ParseUint(fileId, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file ID"})
+			return
+		}
+
+		var sampleFile *domain.SampleFile
+		for _, sf := range project.SampleFiles {
+			if sf.ID == uint(sampleFileId) {
+				sampleFile = &sf
+				break
+			}
+		}
+
+		if sampleFile == nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Sample file not found"})
+			return
+		}
+		filePath = sampleFile.FilePath
+		fileName = sampleFile.Filename
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
 		return
 	}
 
-	obj, fileInfo, err := h.storage.GetFile(project.MainFile.FilePath)
+	obj, fileInfo, err := h.storage.GetFile(filePath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file"})
 		return
@@ -229,7 +270,7 @@ func (h *ProjectHandler) Download(c *gin.Context) {
 	defer obj.Close()
 
 	// Set headers for download
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileInfo.Filename))
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
 	c.Header("Content-Type", "application/octet-stream")
 	c.Header("Content-Length", fmt.Sprintf("%d", fileInfo.Size))
 

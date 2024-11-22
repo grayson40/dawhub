@@ -122,9 +122,11 @@ func (s *Server) setupRoutes() {
 			protected.GET("/projects/:id", s.projectAPI.Get)
 			protected.PUT("/projects/:id", s.projectAPI.Update)
 			protected.DELETE("/projects/:id", s.projectAPI.Delete)
-			protected.POST("/projects/:id/upload", s.projectAPI.Upload)
-			protected.GET("/projects/:id/download", s.projectAPI.Download)
 		}
+
+		// Separate download route with dual auth
+		api.GET("/projects/:id/download", middleware.DualAuthMiddleware(), s.projectAPI.Download)
+		api.POST("/projects/:id/upload", middleware.DualAuthMiddleware(), s.projectAPI.Upload)
 	}
 }
 
