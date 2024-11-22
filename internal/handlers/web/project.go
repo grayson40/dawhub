@@ -138,6 +138,7 @@ func (h *ProjectHandler) Create(c *gin.Context) {
 		Name:        c.PostForm("name"),
 		Description: c.PostForm("description"),
 		IsPublic:    c.PostForm("visibility") == "public",
+		Version:     "1.0",
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -452,8 +453,8 @@ func (h *ProjectHandler) HandleImport(c *gin.Context) {
 	project := &domain.Project{
 		Name:        strings.TrimSuffix(mainFile.Name, filepath.Ext(mainFile.Name)), // Use filename without extension
 		Description: fmt.Sprintf("Imported project with %d samples", len(sampleFiles)),
-		Version:     "1.0.0",
-		IsPublic:    c.PostForm("isPublic") == "on",
+		Version:     "1.0",
+		IsPublic:    c.PostForm("visibility") == "public",
 	}
 
 	// Start transaction
