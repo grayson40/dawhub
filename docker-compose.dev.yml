@@ -4,12 +4,18 @@ services:
   app:
     build: 
       context: .
-      dockerfile: Dockerfile  # Using the production Dockerfile
-    restart: always
+      dockerfile: Dockerfile.dev
     ports:
       - "8080:8080"
+    env_file: .env
     volumes:
-      - ./.env:/app/.env
+      - .:/app
+      - go-mod-cache:/go/pkg/mod  # Persist Go module cache
+      - go-build-cache:/root/.cache/go-build  # Persist Go build cache
+    environment:
+      - CGO_ENABLED=0
+      - GOPATH=/go
+      - GOCACHE=/root/.cache/go-build
     depends_on:
       db:
         condition: service_healthy
@@ -17,45 +23,28 @@ services:
         condition: service_started
     networks:
       - daw-network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.8'
-          memory: 1G
 
   db:
     image: postgres:15-alpine
-    restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      # Production PostgreSQL tuning
-      POSTGRES_SHARED_BUFFERS: '256MB'
-      POSTGRES_WORK_MEM: '16MB'
-      POSTGRES_EFFECTIVE_CACHE_SIZE: '768MB'
-      POSTGRES_MAINTENANCE_WORK_MEM: '128MB'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - daw-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          cpus: '0.6'
-          memory: 1G
 
   minio:
     image: minio/minio:latest
-    restart: always
     ports:
-      - "9000:9000"  # API port
-      - "9001:9001"  # Console port
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
@@ -64,16 +53,6 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - daw-network
-    deploy:
-      resources:
-        limits:
-          cpus: '0.4'
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
 
 networks:
   daw-network:
@@ -82,3 +61,5 @@ networks:
 volumes:
   postgres_data:
   minio_data:
+  go-mod-cache:  # Persist Go modules between container restarts
+  go-build-cache:  # Persist Go build cache between container restarts
