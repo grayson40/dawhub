@@ -12,11 +12,22 @@ import (
 )
 
 type AuthHandler struct {
-	userRepo *repository.UserRepository
+	userRepo    *repository.UserRepository
+	projectRepo domain.ProjectRepository
 }
 
-func NewAuthHandler(userRepo *repository.UserRepository) *AuthHandler {
-	return &AuthHandler{userRepo: userRepo}
+func NewAuthHandler(userRepo *repository.UserRepository, projectRepo domain.ProjectRepository) *AuthHandler {
+	return &AuthHandler{
+		userRepo:    userRepo,
+		projectRepo: projectRepo,
+	}
+}
+
+// Health route
+func (h *AuthHandler) Health(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status": "healthy",
+	})
 }
 
 func (h *AuthHandler) LoginPage(c *gin.Context) {
@@ -121,23 +132,133 @@ func (h *AuthHandler) SettingsPage(c *gin.Context) {
 }
 
 func (h *AuthHandler) UpdateProfile(c *gin.Context) {
-	// Handle profile update
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+	sessionUsername := session.Get("username").(string)
+	sessionEmail := session.Get("email").(string)
+
+	if userID == nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "User must be logged in", "type": "error"}}`)
+		return
+	}
+
+	user, err := h.userRepo.GetByID(uint(userID.(uint)))
+	if err != nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "User not found", "type": "error"}}`)
+		return
+	}
+
+	username := c.PostForm("username")
+	email := c.PostForm("email")
+
+	if username == "" || email == "" {
+		c.Header("HX-Trigger", `{"showToast": {"message": "All fields are required", "type": "error"}}`)
+		return
+	}
+
+	// Check if anything changed
+	if username == sessionUsername && email == sessionEmail {
+		return
+	}
+
+	// Only update if there are changes
+	if username != sessionUsername || email != sessionEmail {
+		user.Username = username
+		user.Email = email
+
+		if err := h.userRepo.Update(user); err != nil {
+			c.Header("HX-Trigger", `{"showToast": {"message": "Failed to update profile", "type": "error"}}`)
+			return
+		}
+
+		session.Set("username", username)
+		session.Set("email", email)
+		session.Save()
+	}
+
+	c.Header("HX-Trigger", `{"showToast": {"message": "Profile updated successfully", "type": "success"}}`)
+	c.Status(http.StatusOK)
 }
 
 func (h *AuthHandler) UpdatePassword(c *gin.Context) {
-	// Handle password update
-}
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+	if userID == nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "User must be logged in", "type": "error"}}`)
+		return
+	}
 
-func (h *AuthHandler) UpdatePreferences(c *gin.Context) {
-	// Handle preferences update
+	user, err := h.userRepo.GetByID(uint(userID.(uint)))
+	if err != nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "User not found", "type": "error"}}`)
+		return
+	}
+
+	currentPassword := c.PostForm("current_password")
+	newPassword := c.PostForm("new_password")
+
+	if currentPassword == "" || newPassword == "" {
+		c.Header("HX-Trigger", `{"showToast": {"message": "All fields are required", "type": "error"}}`)
+		return
+	}
+
+	if !user.CheckPassword(currentPassword) {
+		c.Header("HX-Trigger", `{"showToast": {"message": "Current password is incorrect", "type": "error"}}`)
+		return
+	}
+
+	user.Password = newPassword
+	if err := user.HashPassword(); err != nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "Failed to update password", "type": "error"}}`)
+		return
+	}
+
+	if err := h.userRepo.Update(user); err != nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "Failed to update password", "type": "error"}}`)
+		return
+	}
+
+	// Clear form inputs using HX-Reswap header
+	c.Header("HX-Trigger", `{
+		"showToast": {"message": "Password updated successfully", "type": "success"},
+		"clearPasswords": true
+	}`)
+	c.Status(http.StatusOK)
 }
 
 func (h *AuthHandler) DeleteAccount(c *gin.Context) {
-	// Handle account deletion
-}
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+	if userID == nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "User must be logged in", "type": "error"}}`)
+		return
+	}
 
-func (h *AuthHandler) Health(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status": "healthy",
-	})
+	// Get user projects
+	projects, err := h.projectRepo.FindByUserID(uint(userID.(uint)))
+	if err != nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "Failed to get user projects", "type": "error"}}`)
+		return
+	}
+
+	// Delete all user projects
+	for _, project := range projects {
+		if err := h.projectRepo.Delete(project.ID); err != nil {
+			c.Header("HX-Trigger", `{"showToast": {"message": "Failed to delete user projects", "type": "error"}}`)
+			return
+		}
+	}
+
+	// Delete user
+	if err := h.userRepo.Delete(uint(userID.(uint))); err != nil {
+		c.Header("HX-Trigger", `{"showToast": {"message": "Failed to delete account", "type": "error"}}`)
+		return
+	}
+
+	session.Clear()
+	session.Save()
+
+	c.Header("HX-Trigger", `{"showToast": {"message": "Account deleted successfully", "type": "success"}}`)
+	c.Header("HX-Redirect", "/")
+	c.Status(http.StatusOK)
 }

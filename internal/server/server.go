@@ -47,7 +47,7 @@ func New(cfg *config.Config) (*Server, error) {
 	projectAPI := api.NewProjectHandler(projectRepo, store)
 	projectWeb := web.NewProjectHandler(projectRepo, store)
 	authAPI := api.NewAuthHandler(userRepo)
-	authWeb := web.NewAuthHandler(userRepo)
+	authWeb := web.NewAuthHandler(userRepo, projectRepo)
 
 	// Initialize router with sessions
 	router := gin.Default()
