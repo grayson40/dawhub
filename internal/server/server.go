@@ -102,7 +102,6 @@ func (s *Server) setupRoutes() {
 		web.GET("/settings", s.authWeb.SettingsPage)
 		web.POST("/settings/profile", s.authWeb.UpdateProfile)
 		web.POST("/settings/password", s.authWeb.UpdatePassword)
-		web.POST("/settings/preferences", s.authWeb.UpdatePreferences)
 		web.POST("/settings/delete-account", s.authWeb.DeleteAccount)
 	}
 
