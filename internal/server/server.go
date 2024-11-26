@@ -49,8 +49,16 @@ func New(cfg *config.Config) (*Server, error) {
 	authAPI := api.NewAuthHandler(userRepo)
 	authWeb := web.NewAuthHandler(userRepo, projectRepo)
 
-	// Initialize router with sessions
-	router := gin.Default()
+	// Initialize router
+	router := gin.New()
+
+	// Add essential middlewares
+	router.Use(gin.Recovery())                            // Recover from panics
+	router.Use(middleware.NewIPRateLimiter().RateLimit()) // Rate limiting
+	router.Use(middleware.BlockSuspiciousRequests())      // Block suspicious requests
+	router.Use(middleware.LogSuspiciousRequests())        // Log suspiciouis requests
+
+	// Add session middleware
 	cookieStore := cookie.NewStore([]byte(cfg.Server.SessionSecret))
 	router.Use(sessions.Sessions("dawhub_session", cookieStore))
 
