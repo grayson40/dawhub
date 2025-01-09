@@ -92,12 +92,13 @@ func (s *Server) setupRoutes() {
 	s.router.POST("/register", s.authWeb.Register)
 	s.router.POST("/logout", s.authWeb.Logout)
 	s.router.GET("/health", s.authWeb.Health)
+	s.router.GET("/", s.authWeb.LandingPage)
 
 	// Protected web routes
 	web := s.router.Group("/")
 	web.Use(middleware.WebAuthMiddleware())
 	{
-		web.GET("/", s.projectWeb.Home)
+		web.GET("/dashboard", s.projectWeb.Home)
 		web.GET("/projects", s.projectWeb.List)
 		web.GET("/projects/new", s.projectWeb.New)
 		web.POST("/projects/create", s.projectWeb.Create)

@@ -44,7 +44,7 @@ func WebAuthMiddleware() gin.HandlerFunc {
 		userID := session.Get("user_id")
 
 		if userID == nil {
-			c.Redirect(http.StatusSeeOther, "/login")
+			c.Redirect(http.StatusSeeOther, "/")
 			c.Abort()
 			return
 		}

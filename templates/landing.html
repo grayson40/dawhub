@@ -1,0 +1,339 @@
+{{define "landing"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAW Hub - Cloud Storage for Music Production</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter/3.19.3/inter.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="/static/js/theme-manager.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        html.dark { background: #111827; }
+        .gradient-text {
+            background: linear-gradient(to right, #3b82f6, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                    <span class="ml-2 text-xl font-bold text-gray-900 dark:text-white">DAW Hub</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button type="button" id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
+                        <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                        </svg>
+                    </button>
+                    {{if .isLoggedIn}}
+                        <a href="/dashboard" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                            Go to Console
+                        </a>
+                    {{else}}
+                        <a href="/register" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                            Sign up
+                        </a>
+                    <a href="/login" class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Log in
+                    </a>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center">
+                <h1 class="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+                    The Open Source Platform for<br/>
+                    <span class="gradient-text">Music Production</span>
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+                    Share, collaborate, and discover DAW projects. Join the community of music producers building the future of open source music.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <a href="/register" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Start Free
+                    </a>
+                    <a href="#pricing" class="inline-flex items-center px-8 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        See Plans
+                    </a>
+                </div>
+                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No credit card required</p>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Features Grid -->
+    <div class="py-20 bg-white dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Store, Share, and Collaborate</h2>
+                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Everything you need to manage your music projects in the cloud</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Cloud Storage</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Store your projects and samples in the cloud. Free up space on your laptop.</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Easy Sharing</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Share projects instantly with collaborators. Control who can view or edit.</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Secure Backup</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Never lose your work with automatic backups and version history.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it Works -->
+    <div class="py-20 bg-gray-50 dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">How It Works</h2>
+                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Get started in minutes, not hours</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">1</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upload Your Project</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Upload your DAW project files and samples. We'll keep everything organized.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">2</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Access Anywhere</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Work on your projects from any computer. All your files are synced.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">3</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Collaborate</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Share with collaborators and get feedback on your work.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Section -->
+    <div id="pricing" class="py-20 bg-white dark:bg-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Simple, Transparent Pricing</h2>
+                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Start for free, upgrade when you need more</p>
+            </div>
+            <div class="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Free Tier -->
+                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                Free
+                            </h3>
+                        </div>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-extrabold text-gray-900 dark:text-white">$0</span>
+                            <span class="ml-2 text-gray-500 dark:text-gray-400">/mo</span>
+                        </div>
+                        <div class="mt-8 space-y-4">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">500MB Storage</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">2 Projects</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">5 min duration limit</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">MP3 Export</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 mt-auto bg-gray-50 dark:bg-gray-700">
+                        <a href="/register" class="block w-full text-center rounded-lg px-4 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                            Get Started
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hobby Tier -->
+                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border-2 border-blue-500 dark:border-blue-400 transform scale-105">
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                Hobby
+                            </h3>
+                        </div>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-extrabold text-gray-900 dark:text-white">$8</span>
+                            <span class="ml-2 text-gray-500 dark:text-gray-400">/mo</span>
+                        </div>
+                        <div class="mt-8 space-y-4">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">5GB Storage</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">10 Projects</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">30 min duration limit</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">WAV Export</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">Email Support</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 mt-auto bg-gray-50 dark:bg-gray-700">
+                        <a href="/register" class="block w-full text-center rounded-lg px-4 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                            Start Trial
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pro Tier -->
+                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                                Pro
+                            </h3>
+                        </div>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-extrabold text-gray-900 dark:text-white">$15</span>
+                            <span class="ml-2 text-gray-500 dark:text-gray-400">/mo</span>
+                        </div>
+                        <div class="mt-8 space-y-4">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">20GB Storage</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">Unlimited Projects</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">No Duration Limits</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">All Export Formats</span>
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <span class="ml-3 text-gray-700 dark:text-gray-300">Priority Support</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 mt-auto bg-gray-50 dark:bg-gray-700">
+                        <a href="/register" class="block w-full text-center rounded-lg px-4 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                            Start Trial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                    <span class="ml-2 text-xl font-bold text-gray-900 dark:text-white">DAW Hub</span>
+                </div>
+                <p class="text-gray-500 dark:text-gray-400">&copy; 2025 Volare Solutions LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

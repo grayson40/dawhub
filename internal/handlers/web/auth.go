@@ -23,6 +23,17 @@ func NewAuthHandler(userRepo *repository.UserRepository, projectRepo domain.Proj
 	}
 }
 
+// Landing route
+func (h *AuthHandler) LandingPage(c *gin.Context) {
+	session := sessions.Default(c)
+	userID := session.Get("user_id")
+
+	c.HTML(http.StatusOK, "landing", gin.H{
+		"content":    "landing",
+		"isLoggedIn": userID != nil,
+	})
+}
+
 // Health route
 func (h *AuthHandler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
@@ -114,7 +125,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	session.Set("email", user.Email)
 	session.Save()
 
-	c.Redirect(http.StatusSeeOther, "/")
+	c.Redirect(http.StatusSeeOther, "/dashboard")
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
@@ -122,7 +133,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	session.Clear()
 	session.Save()
 
-	c.Redirect(http.StatusSeeOther, "/login")
+	c.Redirect(http.StatusSeeOther, "/")
 }
 
 func (h *AuthHandler) SettingsPage(c *gin.Context) {
