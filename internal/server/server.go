@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"dawhub/internal/config"
+	"dawhub/internal/email"
 	"dawhub/internal/handlers/api"
 	"dawhub/internal/handlers/web"
 	"dawhub/internal/middleware"
@@ -39,6 +40,9 @@ func New(cfg *config.Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize storage: %w", err)
 	}
 
+	// Initialize email
+	emailService := email.NewResendService(cfg.Email)
+
 	// Initialize repositories
 	projectRepo := repository.NewProjectRepository(db)
 	userRepo := repository.NewUserRepository(db)
@@ -47,7 +51,7 @@ func New(cfg *config.Config) (*Server, error) {
 	projectAPI := api.NewProjectHandler(projectRepo, store)
 	projectWeb := web.NewProjectHandler(projectRepo, store)
 	authAPI := api.NewAuthHandler(userRepo)
-	authWeb := web.NewAuthHandler(userRepo, projectRepo)
+	authWeb := web.NewAuthHandler(userRepo, projectRepo, emailService)
 
 	// Initialize router
 	router := gin.New()
@@ -94,6 +98,9 @@ func (s *Server) setupRoutes() {
 	s.router.GET("/health", s.authWeb.Health)
 	s.router.GET("/", s.authWeb.LandingPage)
 
+	// Beta Signup Route
+	s.router.POST("/beta-signup", s.authWeb.BetaSignup)
+
 	// Protected web routes
 	web := s.router.Group("/")
 	web.Use(middleware.WebAuthMiddleware())
@@ -112,6 +119,7 @@ func (s *Server) setupRoutes() {
 		web.POST("/settings/profile", s.authWeb.UpdateProfile)
 		web.POST("/settings/password", s.authWeb.UpdatePassword)
 		web.POST("/settings/delete-account", s.authWeb.DeleteAccount)
+		web.GET("/beta-users", s.authWeb.BetaUsersPage)
 	}
 
 	// API routes

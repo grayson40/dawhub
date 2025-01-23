@@ -56,3 +56,30 @@ func (r *UserRepository) List() ([]domain.User, error) {
 	}
 	return users, nil
 }
+
+func (r *UserRepository) CreateBetaUser(betaUser *domain.BetaUser) error {
+	return r.db.Create(betaUser).Error
+}
+
+func (r *UserRepository) GetBetaUserByEmail(email string) (*domain.BetaUser, error) {
+	var betaUser domain.BetaUser
+	if err := r.db.First(&betaUser, email).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+	return &betaUser, nil
+}
+
+func (r *UserRepository) GetAllBetaUsers(page, limit int) ([]domain.BetaUser, error) {
+	var betaUsers []domain.BetaUser
+	if err := r.db.Offset((page - 1) * limit).Limit(limit).Find(&betaUsers).Error; err != nil {
+		return nil, err
+	}
+	return betaUsers, nil
+}
+
+func (r *UserRepository) CountBetaUsers(count *int64) error {
+	return r.db.Model(&domain.BetaUser{}).Count(count).Error
+}

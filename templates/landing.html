@@ -1,6 +1,7 @@
 {{define "landing"}}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +15,14 @@
     </script>
     <script src="/static/js/theme-manager.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        html.dark { background: #111827; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        html.dark {
+            background: #111827;
+        }
+
         .gradient-text {
             background: linear-gradient(to right, #3b82f6, #6366f1);
             -webkit-background-clip: text;
@@ -23,56 +30,73 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-50">
+    <nav
+        class="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                     </svg>
                     <span class="ml-2 text-xl font-bold text-gray-900 dark:text-white">DAW Hub</span>
                 </div>
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex md:items-center md:space-x-6">
-                    <button type="button" id="theme-toggle" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
+                    <button type="button" id="theme-toggle"
+                        class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
                         <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
                         </svg>
-                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path
+                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
+                            </path>
                         </svg>
                     </button>
                     {{if .isLoggedIn}}
-                        <a href="/dashboard" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                            Go to Console
-                        </a>
+                    <a href="/dashboard"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        Go to Console
+                    </a>
                     {{else}}
-                        <a href="/login" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
-                            Log in
-                        </a>
-                        <a href="/register" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                            Sign up
-                        </a>
+                    <a href="/login"
+                        class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">
+                        Log in
+                    </a>
+                    <button
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 join-beta-btn">
+                        Sign up
+                    </button>
                     {{end}}
                 </div>
 
                 <!-- Mobile Navigation -->
                 <div class="flex md:hidden items-center space-x-4">
-                    <button type="button" id="theme-toggle-mobile" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
+                    <button type="button" id="theme-toggle-mobile"
+                        class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg text-sm p-2.5">
                         <svg id="theme-toggle-dark-icon-mobile" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
                         </svg>
-                        <svg id="theme-toggle-light-icon-mobile" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                        <svg id="theme-toggle-light-icon-mobile" class="hidden w-5 h-5" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path
+                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
+                            </path>
                         </svg>
                     </button>
-                    <button type="button" id="mobile-menu-button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5">
+                    <button type="button" id="mobile-menu-button"
+                        class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none rounded-lg p-2.5">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
                 </div>
@@ -81,16 +105,19 @@
             <!-- Mobile Menu -->
             <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-700 py-4">
                 {{if .isLoggedIn}}
-                    <a href="/dashboard" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        Go to Console
-                    </a>
+                <a href="/dashboard"
+                    class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Go to Console
+                </a>
                 {{else}}
-                    <a href="/login" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        Log in
-                    </a>
-                    <a href="/register" class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                        Sign up
-                    </a>
+                <a href="/login"
+                    class="block px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    Log in
+                </a>
+                <button
+                    class="block w-full text-left px-4 py-2 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 join-beta-btn">
+                    Sign up
+                </button>
                 {{end}}
             </div>
         </div>
@@ -122,6 +149,63 @@
             darkIconMobile.classList.toggle('hidden');
             lightIconMobile.classList.toggle('hidden');
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('beta-modal');
+            const closeModal = document.getElementById('close-modal');
+            const betaButtons = document.querySelectorAll('.join-beta-btn');
+
+            // Open modal when any beta button is clicked
+            betaButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    modal.classList.remove('hidden');
+                });
+            });
+
+            // Close modal when close button is clicked
+            closeModal.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+
+            // Handle form submission
+            const form = document.getElementById('beta-signup-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                // Transform the subscribed input to true or false
+                const subscribedInput = formData.get('subscribed');
+                formData.set('subscribed', subscribedInput === 'on' ? 'true' : 'false');
+
+                try {
+                    const response = await fetch('/beta-signup', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    if (!response.ok) {
+                        throw new Error("Sign up failed");
+                    }
+                    const data = await response.json();
+                    modal.classList.add('hidden');
+                    // Show success toast
+                    document.getElementById('toast-message').innerText = data.message || 'Thanks for signing up! We\'ll be in touch soon.';
+                    document.getElementById('toast').classList.remove('hidden');
+                    setTimeout(() => {
+                        document.getElementById('toast').classList.add('hidden');
+                    }, 3000); // Hide after 3 seconds
+                } catch (error) {
+                    console.error(error);
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
     </script>
 
     <!-- Hero Section -->
@@ -129,60 +213,76 @@
         <div class="max-w-7xl mx-auto">
             <div class="text-center">
                 <h1 class="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-                    The Open Source Platform for<br/>
-                    <span class="gradient-text">Music Production</span>
+                    Music Production Meets<br />
+                    <span class="gradient-text">Version Control</span>
                 </h1>
                 <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
-                    Share, collaborate, and discover DAW projects. Join the community of music producers building the future of open source music.
+                    Track changes, branch ideas, and collaborate seamlessly. Built by producers, for producers.
                 </p>
                 <div class="flex justify-center space-x-4">
-                    <a href="/register" class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                        Start Free
-                    </a>
-                    <a href="#pricing" class="inline-flex items-center px-8 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
-                        See Plans
+                    <button
+                        class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 join-beta-btn">
+                        Join Beta
+                    </button>
+                    <a href="#features"
+                        class="inline-flex items-center px-8 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Learn More
                     </a>
                 </div>
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No credit card required</p>
+                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Coming Soon - Reserve Your Spot</p>
             </div>
         </div>
     </div>
-    
 
     <!-- Features Grid -->
-    <div class="py-20 bg-white dark:bg-gray-900">
+    <div id="features" class="py-20 bg-white dark:bg-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Store, Share, and Collaborate</h2>
-                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Everything you need to manage your music projects in the cloud</p>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Version Control Reimagined</h2>
+                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Git-inspired workflow designed for music
+                    production</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    <div
+                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Cloud Storage</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Store your projects and samples in the cloud. Free up space on your laptop.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Track Changes</h3>
+                    <p class="text-gray-600 dark:text-gray-400">See your project evolve. Track every change from
+                        arrangement to mixing.</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <div
+                        class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Easy Sharing</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Share projects instantly with collaborators. Control who can view or edit.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Branch & Merge</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Explore different versions without fear. Merge the best
+                        ideas back together.</p>
                 </div>
                 <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <div
+                        class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Secure Backup</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Never lose your work with automatic backups and version history.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Collaborate</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Work together seamlessly. Fork projects, submit changes,
+                        review work.</p>
                 </div>
             </div>
         </div>
@@ -192,192 +292,52 @@
     <div class="py-20 bg-gray-50 dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">How It Works</h2>
-                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Get started in minutes, not hours</p>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Built for Music Producers</h2>
+                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Version control that speaks your language</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div
+                        class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">1</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upload Your Project</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Upload your DAW project files and samples. We'll keep everything organized.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Commit Changes</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Save snapshots of your work. Never lose a good idea
+                        again.</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div
+                        class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">2</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Access Anywhere</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Work on your projects from any computer. All your files are synced.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Branch Ideas</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Create alternate versions. Perfect for trying new
+                        arrangements.</p>
                 </div>
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div
+                        class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">3</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Collaborate</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Share with collaborators and get feedback on your work.</p>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Share & Merge</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Collaborate with others. Combine the best of every
+                        version.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Pricing Section -->
-    <div id="pricing" class="py-20 bg-white dark:bg-gray-900">
+    <!-- Early Access Section -->
+    <div class="py-20 bg-white dark:bg-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Simple, Transparent Pricing</h2>
-                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400">Start for free, upgrade when you need more</p>
-            </div>
-            <div class="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <!-- Free Tier -->
-                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                    <div class="p-6">
-                        <div class="mb-4">
-                            <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                Free
-                            </h3>
-                        </div>
-                        <div class="flex items-baseline">
-                            <span class="text-5xl font-extrabold text-gray-900 dark:text-white">$0</span>
-                            <span class="ml-2 text-gray-500 dark:text-gray-400">/mo</span>
-                        </div>
-                        <div class="mt-8 space-y-4">
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">500MB Storage</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">2 Projects</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">5 min duration limit</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">MP3 Export</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6 mt-auto bg-gray-50 dark:bg-gray-700">
-                        <a href="/register" class="block w-full text-center rounded-lg px-4 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
-                            Get Started
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Hobby Tier -->
-                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border-2 border-blue-500 dark:border-blue-400 transform scale-105">
-                    <div class="p-6">
-                        <div class="mb-4">
-                            <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                Hobby
-                            </h3>
-                        </div>
-                        <div class="flex items-baseline">
-                            <span class="text-5xl font-extrabold text-gray-900 dark:text-white">$8</span>
-                            <span class="ml-2 text-gray-500 dark:text-gray-400">/mo</span>
-                        </div>
-                        <div class="mt-8 space-y-4">
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">5GB Storage</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">10 Projects</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">30 min duration limit</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">WAV Export</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">Email Support</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6 mt-auto bg-gray-50 dark:bg-gray-700">
-                        <a href="/register" class="block w-full text-center rounded-lg px-4 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
-                            Start Trial
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Pro Tier -->
-                <div class="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                    <div class="p-6">
-                        <div class="mb-4">
-                            <h3 class="inline-flex px-4 py-1 rounded-full text-sm font-semibold tracking-wide uppercase bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                                Pro
-                            </h3>
-                        </div>
-                        <div class="flex items-baseline">
-                            <span class="text-5xl font-extrabold text-gray-900 dark:text-white">$15</span>
-                            <span class="ml-2 text-gray-500 dark:text-gray-400">/mo</span>
-                        </div>
-                        <div class="mt-8 space-y-4">
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">20GB Storage</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">Unlimited Projects</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">No Duration Limits</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">All Export Formats</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                <span class="ml-3 text-gray-700 dark:text-gray-300">Priority Support</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6 mt-auto bg-gray-50 dark:bg-gray-700">
-                        <a href="/register" class="block w-full text-center rounded-lg px-4 py-3 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
-                            Start Trial
-                        </a>
-                    </div>
-                </div>
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Join the Beta</h2>
+                <p class="mt-4 text-xl text-gray-600 dark:text-gray-400 mb-8">Shape the future of music collaboration
+                </p>
+                <button
+                    class="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 join-beta-btn">
+                    Get Early Access
+                </button>
             </div>
         </div>
     </div>
@@ -387,8 +347,10 @@
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                     </svg>
                     <span class="ml-2 text-xl font-bold text-gray-900 dark:text-white">DAW Hub</span>
                 </div>
@@ -396,6 +358,81 @@
             </div>
         </div>
     </footer>
+
+    <!-- Modal Overlay -->
+    <div id="beta-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+        <!-- Modal Content -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all">
+            <!-- Close Button -->
+            <button id="close-modal"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="p-6">
+                <div
+                    class="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="mt-4 text-2xl font-bold text-center text-gray-900 dark:text-white">
+                    Join the Future of Music Creation
+                </h3>
+                <p class="mt-2 text-center text-gray-600 dark:text-gray-400">
+                    Be among the first to experience git-style version control for music production
+                </p>
+            </div>
+
+            <!-- Form Section -->
+            <div class="p-6 bg-gray-50 dark:bg-gray-700 rounded-b-xl">
+                <form id="beta-signup-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Email
+                        </label>
+                        <input type="email" name="email" required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="producer@example.com">
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" name="subscribed" required
+                                class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        </div>
+                        <div class="ml-3">
+                            <label class="text-sm text-gray-500 dark:text-gray-400">
+                                I'd like to receive product updates and early access opportunities
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <span>Reserve Your Spot</span>
+                        <svg class="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-4">
+                        🔒 We respect your privacy and will never share your information
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="hidden fixed bottom-5 right-5 bg-blue-600 text-white p-3 rounded-lg shadow-lg">
+        <span id="toast-message"></span>
+    </div>
 </body>
+
 </html>
 {{end}}

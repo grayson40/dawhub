@@ -45,6 +45,8 @@
                 {{template "import" .}}
             {{else if eq .content "settings"}}
                 {{template "settings" .}}
+            {{else if eq .content "beta_users"}}
+                {{template "beta_users"}}
             {{end}}
         </div>
     </main>

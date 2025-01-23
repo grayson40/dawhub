@@ -1,9 +1,13 @@
 package web
 
 import (
+	"log"
+	"math"
 	"net/http"
+	"strconv"
 
 	"dawhub/internal/domain"
+	"dawhub/internal/email"
 	"dawhub/internal/repository"
 	"dawhub/pkg/common"
 
@@ -12,14 +16,16 @@ import (
 )
 
 type AuthHandler struct {
-	userRepo    *repository.UserRepository
-	projectRepo domain.ProjectRepository
+	userRepo     *repository.UserRepository
+	projectRepo  domain.ProjectRepository
+	emailService *email.ResendService
 }
 
-func NewAuthHandler(userRepo *repository.UserRepository, projectRepo domain.ProjectRepository) *AuthHandler {
+func NewAuthHandler(userRepo *repository.UserRepository, projectRepo domain.ProjectRepository, emailService *email.ResendService) *AuthHandler {
 	return &AuthHandler{
-		userRepo:    userRepo,
-		projectRepo: projectRepo,
+		userRepo:     userRepo,
+		projectRepo:  projectRepo,
+		emailService: emailService,
 	}
 }
 
@@ -272,4 +278,77 @@ func (h *AuthHandler) DeleteAccount(c *gin.Context) {
 	c.Header("HX-Trigger", `{"showToast": {"message": "Account deleted successfully", "type": "success"}}`)
 	c.Header("HX-Redirect", "/")
 	c.Status(http.StatusOK)
+}
+
+// Add this function to handle beta signup
+func (h *AuthHandler) BetaSignup(c *gin.Context) {
+	var betaUser domain.BetaUser
+	if err := c.ShouldBind(&betaUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	// Check if the email is already registered
+	existingUser, err := h.userRepo.GetBetaUserByEmail(betaUser.Email)
+	if err == nil && existingUser != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+		return
+	}
+
+	// Save the user to the database
+	if err := h.userRepo.CreateBetaUser(&betaUser); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	// Send welcome email
+	err = h.emailService.SendBetaSignupEmail(betaUser.Email)
+	if err != nil {
+		log.Printf("Failed to send welcome email: %v", err)
+		// Continue execution - don't return error to user
+	}
+
+	// Return success message
+	c.JSON(http.StatusOK, gin.H{"message": "Signup successful"})
+}
+
+// Update the BetaUsersPage function to handle pagination
+func (h *AuthHandler) BetaUsersPage(c *gin.Context) {
+	pageStr := c.Query("page")
+	limitStr := c.Query("limit")
+
+	page := 1   // Default to page 1
+	limit := 10 // Default to 10 items per page
+
+	if pageStr != "" {
+		if p, err := strconv.Atoi(pageStr); err == nil {
+			page = p
+		}
+	}
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil {
+			limit = l
+		}
+	}
+
+	betaUsers, err := h.userRepo.GetAllBetaUsers(page, limit)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error", gin.H{"message": "Failed to fetch beta users"})
+		return
+	}
+
+	// Get total count for pagination
+	totalCount := int64(0)
+	if err := h.userRepo.CountBetaUsers(&totalCount); err != nil {
+		c.HTML(http.StatusInternalServerError, "error", gin.H{"message": "Failed to count beta users"})
+		return
+	}
+
+	totalPages := int(math.Ceil(float64(totalCount) / float64(limit)))
+
+	c.HTML(http.StatusOK, "beta_users", gin.H{
+		"betaUsers":   betaUsers,
+		"currentPage": page,
+		"totalPages":  totalPages,
+	})
 }

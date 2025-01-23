@@ -10,6 +10,7 @@ type Config struct {
 	Server ServerConfig
 	DB     DBConfig
 	Minio  MinioConfig
+	Email  ResendConfig
 }
 
 type ServerConfig struct {
@@ -31,6 +32,11 @@ type MinioConfig struct {
 	SecretKey string
 	Bucket    string
 	UseSSL    bool
+}
+
+type ResendConfig struct {
+	APIKey    string
+	FromEmail string
 }
 
 func Load() (*Config, error) {
@@ -56,6 +62,10 @@ func Load() (*Config, error) {
 			SecretKey: getEnv("MINIO_SECRET_KEY", ""),
 			Bucket:    getEnv("MINIO_BUCKET", ""),
 			UseSSL:    getEnv("MINIO_USE_SSL", "false") == "true",
+		},
+		Email: ResendConfig{
+			APIKey:    getEnv("RESEND_API_KEY", ""),
+			FromEmail: "no-reply@dawhub.io",
 		},
 	}, nil
 }
