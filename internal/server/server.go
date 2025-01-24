@@ -92,8 +92,8 @@ func (s *Server) setupRoutes() {
 	// Auth routes
 	s.router.GET("/login", s.authWeb.LoginPage)
 	s.router.POST("/login", s.authWeb.Login)
-	s.router.GET("/register", s.authWeb.RegisterPage)
-	s.router.POST("/register", s.authWeb.Register)
+	// s.router.GET("/register", s.authWeb.RegisterPage)
+	// s.router.POST("/register", s.authWeb.Register)
 	s.router.POST("/logout", s.authWeb.Logout)
 	s.router.GET("/health", s.authWeb.Health)
 	s.router.GET("/", s.authWeb.LandingPage)
